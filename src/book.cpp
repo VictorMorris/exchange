@@ -1,6 +1,21 @@
 #include "book.hpp"
 
 namespace ex {
+
+// Descending, highest bid
+// Empty levels must have been dropped or this will return a level with no orders
+std::optional<Price> Book::best_bid() const noexcept {
+    if(!bids.empty()) return bids.begin()->first;
+    return std::nullopt;
+}
+
+// Ascending, lowest ask
+// Empty levels must have been dropped or this will return a level with no orders
+std::optional<Price> Book::best_ask() const noexcept {
+    if(!asks.empty()) return asks.begin()->first;
+    return std::nullopt;
+}
+
 void Book::rest(const RestingOrder& order) {
     if (order.side == Side::Bid) rest_in(bids, order);
     else                         rest_in(asks, order);
