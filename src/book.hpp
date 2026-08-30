@@ -62,7 +62,7 @@ private:
     void erase_from(M& book, const Location& loc) noexcept;
 
     template <class M>
-    void rest_in(M& book, const RestingOrder& order);
+    void reduce_from(M& book, Price price, Qty qty) noexcept;
 };
 
 
@@ -84,6 +84,22 @@ void Book::erase_from(M& book, const Location& loc) noexcept {
     auto level = book.find(loc.price); // price, queue
     level->second.erase(loc.node); // erase order from queue
     if (level->second.empty()) book.erase(level); // Remove empty levels
+}
+
+template <class M>
+void Book::reduce_from(M& book, Price price, Qty qty) noexcept {
+    auto level = book.find(price);
+    if(level == book.end()) return;
+    RestingOrder& order = level->second.front();
+    assert(order.remaining >= qty);
+    if(order.remaining == qty) {
+        std::uint64_t key = handle_key(order.client, order.client_order);
+        by_handle.erase(key);
+        level->second.pop_front();
+        if(level->second.empty()) book.erase(price);
+    } else {
+        order.remaining = Qty{raw(order.remaining) - raw(qty)};
+    }
 }
 
 } // namespace ex

@@ -23,4 +23,10 @@ namespace ex {
         return value;
     }
 
+    void Book::reduce_front(Side side, Price price, Qty qty) noexcept {
+        if(side == Side::Bid) reduce_from(bids, price, qty);
+        else                  reduce_from(asks, price, qty);
+    }
+
+
 } // namespace ex
