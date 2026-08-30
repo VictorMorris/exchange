@@ -28,6 +28,13 @@ enum class ClientOrderId : std::uint32_t {};
 constexpr std::int64_t raw(Price p) noexcept { return std::to_underlying(p); }
 constexpr std::int64_t raw(Qty q) noexcept { return std::to_underlying(q); }
 
+constexpr Qty operator+ (Qty a, Qty b) noexcept { return Qty{raw(a) + raw(b)}; }
+constexpr Qty operator- (Qty a, Qty b) noexcept { return Qty{raw(a) - raw(b)}; }
+constexpr Qty& operator+= (Qty& a, Qty b) noexcept  {a = a + b; return a; }
+constexpr Qty& operator-= (Qty& a, Qty b) noexcept  {a = a - b; return a; }
+
+
+
 
 constexpr bool valid_price(Price p) noexcept { return !(raw(p) % TickSize) && (raw(p) >= 0); };
 constexpr Side opposite(Side s) noexcept { return s == Side::Bid ? Side::Ask : Side::Bid; };
