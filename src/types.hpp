@@ -34,8 +34,6 @@ constexpr Qty& operator+= (Qty& a, Qty b) noexcept  {a = a + b; return a; }
 constexpr Qty& operator-= (Qty& a, Qty b) noexcept  {a = a - b; return a; }
 
 
-
-
 constexpr bool valid_price(Price p) noexcept { return !(raw(p) % TickSize) && (raw(p) >= 0); };
 constexpr Side opposite(Side s) noexcept { return s == Side::Bid ? Side::Ask : Side::Bid; };
 

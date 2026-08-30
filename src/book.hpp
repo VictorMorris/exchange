@@ -6,6 +6,8 @@
 #include <map>
 #include <list>
 #include <unordered_map>
+#include <cassert>
+
 namespace ex {
 
 struct RestingOrder {
@@ -98,7 +100,7 @@ void Book::reduce_from(M& book, Price price, Qty qty) noexcept {
         level->second.pop_front();
         if(level->second.empty()) book.erase(price);
     } else {
-        order.remaining = Qty{raw(order.remaining) - raw(qty)};
+        order.remaining -= qty;
     }
 }
 
