@@ -15,6 +15,10 @@ std::optional<Price> Book::best_ask() const noexcept {
     if(!asks.empty()) return asks.begin()->first;
     return std::nullopt;
 }
+const RestingOrder* Book::front(Side side, Price price) const noexcept {
+    if(side == Side::Ask) return front_from(asks, price);
+    else                  return front_from(bids, price);
+}
 
 void Book::rest(const RestingOrder& order) {
     if (order.side == Side::Bid) rest_in(bids, order);

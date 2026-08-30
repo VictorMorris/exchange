@@ -27,7 +27,7 @@ public:
     std::optional<Price> best_ask() const noexcept;
 
     // First order at price on side
-    RestingOrder* front(Side side, Price price) const noexcept;
+    const RestingOrder* front(Side side, Price price) const noexcept;
 
     // Append to the back of the level's queue, creating the level if needed.
     void rest(const RestingOrder& order);
@@ -66,6 +66,9 @@ private:
     // Reduce from first order by qty
     template <class M>
     void reduce_from(M& book, Price price, Qty qty) noexcept;
+
+    template <class M>
+    const RestingOrder* front_from(const M& book, Price price) const noexcept;
 };
 
 
@@ -107,5 +110,13 @@ void Book::reduce_from(M& book, Price price, Qty qty) noexcept {
         order.remaining -= qty;
     }
 }
+
+template <class M>
+const RestingOrder* Book::front_from(const M& book, Price price) const noexcept {
+    auto level = book.find(price);
+    if (level == book.end()) return nullptr;   // no level here is a valid answer
+    return &level->second.front();
+}
+
 
 } // namespace ex
