@@ -1,6 +1,5 @@
 #pragma once
 #include "types.hpp"
-#include <cstddef>
 #include <optional>
 #include <vector>
 #include <map>
@@ -28,7 +27,7 @@ public:
     std::optional<Price> best_ask() const noexcept;
 
     // First order at price on side
-    RestingOrder* front(Side side, Price price) noexcept;
+    RestingOrder* front(Side side, Price price) const noexcept;
 
     // Append to the back of the level's queue, creating the level if needed.
     void rest(const RestingOrder& order);
@@ -46,7 +45,8 @@ public:
 private:
     using Queue = std::list<RestingOrder>;
     std::map<Price, Queue, std::greater<Price>> bids;
-    std::map<Price, Queue, std::less<Price>> asks;
+    // std::less is the default
+    std::map<Price, Queue> asks;
 
     struct Location {
         Side            side;
@@ -63,6 +63,7 @@ private:
     template <class M>
     void erase_from(M& book, const Location& loc) noexcept;
 
+    // Reduce from first order by qty
     template <class M>
     void reduce_from(M& book, Price price, Qty qty) noexcept;
 };
@@ -77,13 +78,16 @@ void Book::rest_in(M& book, const RestingOrder& order) {
     auto node = q.insert(q.end(), order); 
     // Builds index entry in place
     // Engine must reject duplicate (clientId, clientOrderId)
-    by_handle.emplace(handle_key(order.client, order.client_order),
-                        Location{order.side, order.price, node});
+    [[maybe_unused]] const bool inserted =
+        by_handle.emplace(handle_key(order.client, order.client_order),
+                          Location{order.side, order.price, node}).second;
+    assert(inserted);
 }
 
 template <class M>
 void Book::erase_from(M& book, const Location& loc) noexcept {
     auto level = book.find(loc.price); // price, queue
+    assert(level != book.end());
     level->second.erase(loc.node); // erase order from queue
     if (level->second.empty()) book.erase(level); // Remove empty levels
 }
@@ -91,14 +95,14 @@ void Book::erase_from(M& book, const Location& loc) noexcept {
 template <class M>
 void Book::reduce_from(M& book, Price price, Qty qty) noexcept {
     auto level = book.find(price);
-    if(level == book.end()) return;
+    assert(level != book.end());
     RestingOrder& order = level->second.front();
     assert(order.remaining >= qty);
     if(order.remaining == qty) {
         std::uint64_t key = handle_key(order.client, order.client_order);
         by_handle.erase(key);
         level->second.pop_front();
-        if(level->second.empty()) book.erase(price);
+        if(level->second.empty()) book.erase(level);
     } else {
         order.remaining -= qty;
     }
