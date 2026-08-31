@@ -8,3 +8,9 @@ add_compile_options(-Wall -Wextra -Wconversion -Wsign-conversion)
 
 add_library(engine src/book.cpp)
 target_include_directories(engine PUBLIC src)
+
+enable_testing()
+add_executable(book_test tests/book_test.cpp)
+target_link_libraries(book_test PRIVATE engine)
+target_include_directories(book_test PRIVATE tests)
+add_test(NAME book COMMAND book_test)
