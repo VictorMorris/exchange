@@ -69,6 +69,9 @@ private:
 
     template <class M>
     const RestingOrder* front_from(const M& book, Price price) const noexcept;
+
+    template <class M>
+    void levels_from(const M& book, std::vector<Level>& out) const;
 };
 
 
@@ -116,6 +119,18 @@ const RestingOrder* Book::front_from(const M& book, Price price) const noexcept 
     auto level = book.find(price);
     if (level == book.end()) return nullptr;   // no level here is a valid answer
     return &level->second.front();
+}
+
+
+template <class M>
+void Book::levels_from(const M& book, std::vector<Level>& out) const{
+    for(const auto& [price, queue] : book) {
+        Qty size{0};
+        for(const RestingOrder& order : queue) {
+            size += order.remaining;
+        }
+        out.push_back(Level{price, size});
+    }
 }
 
 

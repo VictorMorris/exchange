@@ -48,4 +48,11 @@ void Book::reduce_front(Side side, Price price, Qty qty) noexcept {
     else                  reduce_from(asks, price, qty);
 }
 
+void Book::levels(Side side, std::vector<Level>& out) const{
+    out.clear();
+    if(side == Side::Bid) levels_from(bids, out);
+    else                  levels_from(asks, out);
+}
+
+
 } // namespace ex
