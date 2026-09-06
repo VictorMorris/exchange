@@ -54,5 +54,10 @@ void Book::levels(Side side, std::vector<Level>& out) const{
     else                  levels_from(asks, out);
 }
 
+bool Book::contains(ClientId client, ClientOrderId handle) const noexcept {
+    const std::uint64_t key = handle_key(client, handle);
+    return by_handle.contains(key);
+}
+
 
 } // namespace ex

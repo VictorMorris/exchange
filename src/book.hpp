@@ -42,6 +42,8 @@ public:
     struct Level { Price price; Qty qty; };
     void levels(Side side, std::vector<Level>& out) const;
 
+    bool contains(ClientId client, ClientOrderId handle) const noexcept;
+
 private:
     using Queue = std::list<RestingOrder>;
     std::map<Price, Queue, std::greater<Price>> bids;
@@ -54,6 +56,7 @@ private:
         Queue::iterator node; // List iterator pointing at the order itself
     };
 
+    // packed clientId and clientOrderId into uint64
     std::unordered_map<std::uint64_t, Location> by_handle;
 
     template <class M>
