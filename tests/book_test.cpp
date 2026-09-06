@@ -195,7 +195,5 @@ int main() {
     RUN(reduce_front_exact_pops_the_order);
     RUN(reduce_front_draining_level_removes_it);
     RUN(removed_handle_can_be_reused);
-
-    std::printf("\n%d checks, %d failures\n", test::checks, test::failures);
-    return test::failures != 0;
+    return test::summary();
 }
